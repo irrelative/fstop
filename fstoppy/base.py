@@ -2,6 +2,10 @@ import sqlite3
 
 class Model(object):
 
+    @classmethod
+    def from_json(cls, json):
+        pass
+
     def __init__(self, steps):
         self.steps = steps
         self.flows = []
@@ -73,10 +77,12 @@ class Flow(object):
 
 
 def main():
-    m = Model(10)
-    s = Stock('stock1', 35)
+    m = Model(96)
+    s = Stock('account', 2000)
     m.stocks.append(s)
-    f = Flow('flow1', 'stock1 * .05', to=s)
+    f = Flow('deposit', '1000', to=s)
+    m.flows.append(f)
+    f = Flow('interest', 'account * .008', to=s)
     m.flows.append(f)
     m.run()
 
