@@ -12,11 +12,10 @@ class Model(object):
         self._initdb()
         step = 1
         while step <= self.steps:
-            print "step ", step
             values = {'step': step}
             for flow in self.flows:
                 # TODO, calculate value
-                values[flow.name] = 12
+                values[flow.name] = self.flow_value(flow, step)
             for flow in self.flows:
                 if flow.to:
                     flow.to.value += values[flow.name]
@@ -28,6 +27,11 @@ class Model(object):
             step += 1
         for r in self.conn.execute('select * from results').fetchall():
             print r
+
+    def flow_value(self, flow, step):
+        prev = step - 1
+        sql = 'SELECT %s AS value FROM (SELECT * FROM results WHERE step=%s)'
+        return self.conn.execute(sql % (flow.formula, prev)).fetchone()[0]
 
 
     def _initdb(self):
@@ -70,10 +74,10 @@ class Flow(object):
 
 def main():
     m = Model(10)
-    f = Flow('flow1', '10')
-    m.flows.append(f)
     s = Stock('stock1', 35)
     m.stocks.append(s)
+    f = Flow('flow1', 'stock1 * .05', to=s)
+    m.flows.append(f)
     m.run()
 
 
