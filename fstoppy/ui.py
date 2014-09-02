@@ -17,15 +17,8 @@ class Handler(object):
 class Index(Handler):
 
     def GET(self):
-        model = base.Model(96)
-        s = base.Stock('account', 2000)
-        model.stocks.append(s)
-        f = base.Flow('deposit', '1000', to=s)
-        model.flows.append(f)
-        f = base.Flow('interest', 'account * .008', to=s)
-        model.flows.append(f)
-        svg = model.gen_svg()
-        return self.render('index.html', {'svg': svg})
+        models = self.db.select('models')
+        return self.render('index.html', {'models': models})
 
 
 class ViewModel(Handler):
@@ -33,7 +26,7 @@ class ViewModel(Handler):
     def GET(self, model_id):
         model = base.Model.get(self.db, model_id)
         svg = model.gen_svg()
-        return self.render('index.html',
+        return self.render('model.html',
                            {'svg': svg, 'model': json.dumps(model.to_json(), indent=4)})
 
     def POST(self, model_id):
