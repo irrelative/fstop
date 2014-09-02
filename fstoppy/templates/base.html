@@ -11,10 +11,10 @@
         <script src="/static/bootstrap-3.2.0/js/bootstrap.min.js"></script>
         <title>{% block title %}fstoppy{% endblock %}</title>
         <link rel="SHORTCUT ICON" type="image/png" href="/static/favicon.png"/>
-
     </head>
 
     <body>
+        {% block header %}
         <div class="navbar navbar-inverse" role="navigation">
             <div class="container">
                 <div class="navbar-header">
@@ -34,6 +34,7 @@
                 </div>
             </div>
         </div>
+        {% endblock %}
 
         <div class="container">
             {% block body %}

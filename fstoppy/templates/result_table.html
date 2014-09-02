@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block header %}{% endblock %}
+
+{% block body %}
+    <table class="table">
+        <tr>
+            {% for h in headers %}
+                <th>{{h}}</th>
+            {% endfor %}
+        </tr>
+        {% for row in rows %}
+            <tr>
+                {% for col in row %}
+                    <td>{{col}}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
