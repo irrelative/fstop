@@ -47,7 +47,7 @@ class Model(object):
         model_json = json.dumps(self.to_json())
         if id_:
             return db.update('models', model_json=model_json,
-                    where='id=$id_', vars={'id_': id_})
+                             where='id=$id_', vars={'id_': id_})
         else:
             return db.insert('models', model_json=model_json)
 
@@ -85,16 +85,16 @@ class Model(object):
 
 
     def _initdb(self):
-        createSql = 'CREATE TABLE results (step INTEGER PRIMARY KEY,\n'
+        create_sql = 'CREATE TABLE results (step INTEGER PRIMARY KEY,\n'
         for flow in self.flows:
-            createSql += ' %s FLOAT,\n' % flow.name
+            create_sql += ' %s FLOAT,\n' % flow.name
         initial_values = {'step': 0}
         for stock in self.stocks:
-            createSql += ' %s FLOAT,\n' % stock.name
+            create_sql += ' %s FLOAT,\n' % stock.name
             initial_values[stock.name] = stock.value
-        createSql = createSql.strip().rstrip(",")
-        createSql += ')'
-        self.conn.execute(createSql)
+        create_sql = create_sql.strip().rstrip(",")
+        create_sql += ')'
+        self.conn.execute(create_sql)
         if initial_values:
             self._insert(initial_values)
 
