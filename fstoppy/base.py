@@ -1,4 +1,7 @@
 import sqlite3
+import subprocess
+import tempfile
+
 
 class Model(object):
 
@@ -58,6 +61,34 @@ class Model(object):
         sql = 'INSERT INTO results (%s) VALUES (%s)' % \
             (','.join(keys), ','.join('?' for k in keys))
         self.conn.execute(sql, values)
+
+    def gen_svg(self):
+        nodes = []
+        vertices = []
+        for s in self.stocks:
+            nodes.append(s.name)
+        for f in self.flows:
+            nodes.append('%s [style=invis]' % f.name)
+            if f.to:
+                vertices.append((f.name, f.to.name, f.name))
+            if f.from_:
+                vertices.append((f.from_.name, f.name, f.name))
+        nodes = ';\n'.join(nodes)
+        vertices = ';\n'.join(['%s->%s [label="%s"]' % v for v in vertices])
+
+        with tempfile.NamedTemporaryFile(delete=False) as tf_input, tempfile.NamedTemporaryFile() as tf_output:
+            tf_input.write('''digraph unix {
+    size="6,6";
+    %s
+    %s
+    }
+            ''' % (nodes, vertices))
+            tf_input.close()
+            p = subprocess.Popen(['dot', '-Tsvg', tf_input.name, '-o', tf_output.name])
+            p.wait()
+            with open(tf_output.name) as f:
+                return f.read()
+
 
 
 class Stock(object):
