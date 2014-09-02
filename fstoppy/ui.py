@@ -1,3 +1,4 @@
+# pylint: disable=invalid-name,missing-docstring
 import json
 import jinja2
 import web
@@ -26,8 +27,8 @@ class ViewModel(Handler):
     def GET(self, model_id):
         model = base.Model.get(self.db, model_id)
         svg = model.gen_svg()
-        return self.render('model.html',
-                           {'svg': svg, 'model': json.dumps(model.to_json(), indent=4)})
+        context = {'svg': svg, 'model': json.dumps(model.to_json(), indent=4)}
+        return self.render('model.html', context)
 
     def POST(self, model_id):
         inp = web.input(model=None)
@@ -50,7 +51,8 @@ class RunModel(Handler):
 class NewModel(Handler):
 
     form = web.form.Form(
-        web.form.Textarea('model_json', web.form.notnull, description="Model JSON"),
+        web.form.Textarea('model_json', web.form.notnull,
+                          description="Model JSON"),
         web.form.Button('Create'))
 
     def GET(self):
@@ -67,10 +69,10 @@ class NewModel(Handler):
 
 
 urls = (
-    '/', Index,
-    '/model/(\d+)', ViewModel,
-    '/run', RunModel,
-    '/new', NewModel,
+    r'/', Index,
+    r'/model/(\d+)', ViewModel,
+    r'/run', RunModel,
+    r'/new', NewModel,
 )
 
 app = web.application(urls, globals())
