@@ -118,7 +118,7 @@ class Model(object):
                 vertices.append((f.from_.name, f.name, f.name))
         nodes = ';\n'.join(nodes)
         vertices = ';\n'.join(['"%s"->"%s" [label="%s"]' % v for v in vertices])
-        dot_content = '\n'.join(['digraph unix {', 'size="6,6";', '%s', '%s', '}']) % (nodes, vertices)
+        dot_content = '\n'.join(['digraph model {', 'size="6,6";', '%s', '%s', '}']) % (nodes, vertices)
 
         with tempfile.NamedTemporaryFile(delete=False) as tf_input, tempfile.NamedTemporaryFile() as tf_output:
             tf_input.write(dot_content)
