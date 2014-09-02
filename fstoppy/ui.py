@@ -47,24 +47,37 @@ class RunModel(Handler):
 
     def POST(self):
         inp = web.input(model=None)
-        print inp.model
         json_inp = json.loads(inp.model)
         model = base.Model.from_json(json_inp)
         results = model.run()
         return self.render('result_table.html', results)
 
 
-class About(Handler):
+
+class NewModel(Handler):
+
+    form = web.form.Form(
+        web.form.Textarea('model_json', web.form.notnull, description="Model JSON"),
+        web.form.Button('Create'))
 
     def GET(self):
-        return self.render('about.html', {})
+        f = self.form()
+        f.fill({'model_json': json.dumps(base.Model(100).to_json())})
+        return self.render('new_model.html', {'form': f})
+
+    def POST(self):
+        f = self.form()
+        if not f.validates():
+            return self.render('new_model.html', {'form': f})
+        id_ = base.Model.from_json(json.loads(f.d.model_json)).save(self.db)
+        return web.seeother('/model/%s' % id_)
 
 
 urls = (
     '/', Index,
-    '/about', About,
     '/model/(\d+)', ViewModel,
     '/run', RunModel,
+    '/new', NewModel,
 )
 
 app = web.application(urls, globals())
