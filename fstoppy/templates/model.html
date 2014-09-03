@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-6">
+            <div class="canvas" style="height: 400px;">
+                {{ svg|safe }}
+            </div>
+            <form action="/run" method="post" target="results">
+                <input type="hidden" name="model" value="{{model}}"/>
+                <button class="btn" type="submit">Run</button>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <form action="" method="post">
+                <textarea style="width: 100%; height: 400px;" name="model">{{model}}</textarea>
+                <br/>
+                <button class="btn" type="submit">Save</button>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <iframe name="results" width="100%" height="400px;" frameBorder="0"></iframe>
+    </div>
+
+{% endblock %}
