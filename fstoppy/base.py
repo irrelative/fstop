@@ -37,6 +37,12 @@ class Model(object):
         self.stocks = []
         self.conn = sqlite3.connect(":memory:")
 
+    def get_stock(self, stock_name):
+        for s in self.stocks:
+            if s.name == stock_name:
+                return s
+        return None
+
     def to_json(self):
         return {
             'steps': self.steps,
@@ -117,13 +123,16 @@ class Model(object):
             nodes.append('"%s" [fontname="%s"]' % (s.name, font))
         for f in self.flows:
             nodes.append('"%s" [style=invis fontname="%s"]' % (f.name, font))
-            if f.to:
-                vertices.append((f.name, f.to.name, f.name))
-            if f.from_:
-                vertices.append((f.from_.name, f.name, f.name))
+            if f.to and f.from_:
+                vertices.append('"%s"->"%s" [label="%s" fontname="%s"]' % (f.from_.name, f.to.name, f.name, font))
+            elif f.to:
+                vertices.append('"%s"->"%s" [label="%s" fontname="%s"]' % (f.name, f.to.name, f.name, font))
+            elif f.from_:
+                vertices.append('"%s"->"%s" [label="%s" fontname="%s"]' % (f.from_.name, f.name, f.name, font))
         nodes = ';\n'.join(nodes)
-        vertices = ';\n'.join(['"%s"->"%s" [label="%s" fontname="%s"]' % (v + (font, )) for v in vertices])
+        vertices = ';\n'.join(vertices)
         dot_content = '\n'.join(['digraph model {', 'size="6,6";', '%s', '%s', '}']) % (nodes, vertices)
+        print dot_content
 
         with tempfile.NamedTemporaryFile(delete=False) as tf_input, tempfile.NamedTemporaryFile() as tf_output:
             tf_input.write(dot_content)
@@ -132,7 +141,6 @@ class Model(object):
             p.wait()
             with open(tf_output.name) as f:
                 return f.read()
-
 
 
 class Stock(object):

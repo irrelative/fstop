@@ -2,6 +2,7 @@
 {% block header %}{% endblock %}
 
 {% block body %}
+    <canvas id="chart" width="800" height="400"></canvas>
     <table class="table">
         <tr>
             {% for h in headers %}
@@ -16,4 +17,27 @@
             </tr>
         {% endfor %}
     </table>
+    <div id="data" style="display: none;">{{json}}</div>
+    <script type="text/javascript" src="/static/Chart.js/Chart.min.js"></script>
+    <script type="text/javascript" src="/static/underscore-min.js"></script>
+    <script type="text/javascript">
+        var data = JSON.parse(document.getElementById('data').textContent);
+        var ctx = document.getElementById("chart").getContext("2d");
+
+        var datasets = _.compact(_.map(data.headers, function(h, i) {
+            if (i == 0) {
+                return;
+            }
+            return {
+                label: h,
+                data: _.pluck(data.rows, i)
+            }
+        }));
+        var chartData = {
+            labels: _.pluck(data.rows, 0),
+            datasets: datasets
+        }
+        console.log(chartData);
+        var myLineChart = new Chart(ctx).Line(chartData, {datasetFill : false, animation: false, pointDotRadius : 2});
+    </script>
 {% endblock %}
