@@ -1,4 +1,3 @@
 * Make a usable UI for CRUDing stocks/flows
-* Add model name, created, updated
 * Model allows start/end datetimes with timedelta, rather than steps
 * Model allows units for checking

@@ -11,7 +11,7 @@ class Model(object):
     def from_json(cls, json_dict):
         flows = [Flow.from_json(f) for f in json_dict.pop('flows', [])]
         stocks = [Stock.from_json(s) for s in json_dict.pop('stocks', [])]
-        m = Model(json_dict.get('steps', 10))
+        m = Model(json_dict.get('steps', 10), json_dict.get('name'))
         m.stocks = stocks
         m.flows = flows
         # Populate the to and from on flows
@@ -30,8 +30,9 @@ class Model(object):
         return cls.from_json(json_dict)
 
 
-    def __init__(self, steps):
+    def __init__(self, steps, name=None):
         self.steps = steps
+        self.name = name
         self.flows = []
         self.stocks = []
         self.conn = sqlite3.connect(":memory:")
@@ -39,17 +40,20 @@ class Model(object):
     def to_json(self):
         return {
             'steps': self.steps,
+            'name': self.name,
             'flows': [f.to_json() for f in self.flows],
             'stocks': [s.to_json() for s in self.stocks]
         }
 
     def save(self, db, id_=None):
-        model_json = json.dumps(self.to_json())
+        json_dict = self.to_json()
+        model_json = json.dumps(json_dict)
+        name = json_dict['name']
         if id_:
-            return db.update('models', model_json=model_json,
+            return db.update('models', model_json=model_json, name=name,
                              where='id=$id_', vars={'id_': id_})
         else:
-            return db.insert('models', model_json=model_json)
+            return db.insert('models', model_json=model_json, name=name)
 
     def delete(self, db, id_):
         db.delete('models', where='id=$id_', vars={'id_': id_})

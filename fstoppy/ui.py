@@ -51,6 +51,8 @@ class RunModel(Handler):
 class NewModel(Handler):
 
     form = web.form.Form(
+        web.form.Textarea('name', web.form.notnull,
+                          description="Model Name"),
         web.form.Textarea('model_json', web.form.notnull,
                           description="Model JSON"),
         web.form.Button('Create'))
@@ -64,7 +66,7 @@ class NewModel(Handler):
         f = self.form()
         if not f.validates():
             return self.render('new_model.html', {'form': f})
-        id_ = base.Model.from_json(json.loads(f.d.model_json)).save(self.db)
+        id_ = base.Model.from_json(json.loads(f.d.model_json)).save(self.db, name=f.d.name)
         return web.seeother('/model/%s' % id_)
 
 
