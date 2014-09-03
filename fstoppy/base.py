@@ -106,19 +106,21 @@ class Model(object):
         self.conn.execute(sql, values)
 
     def gen_svg(self):
+        font = 'OpenSans'
         nodes = []
         vertices = []
         for s in self.stocks:
-            nodes.append(s.name)
+            nodes.append('"%s" [fontname="%s"]' % (s.name, font))
         for f in self.flows:
-            nodes.append('"%s" [style=invis]' % f.name)
+            nodes.append('"%s" [style=invis fontname="%s"]' % (f.name, font))
             if f.to:
                 vertices.append((f.name, f.to.name, f.name))
             if f.from_:
                 vertices.append((f.from_.name, f.name, f.name))
         nodes = ';\n'.join(nodes)
-        vertices = ';\n'.join(['"%s"->"%s" [label="%s"]' % v for v in vertices])
+        vertices = ';\n'.join(['"%s"->"%s" [label="%s" fontname="%s"]' % (v + (font, )) for v in vertices])
         dot_content = '\n'.join(['digraph model {', 'size="6,6";', '%s', '%s', '}']) % (nodes, vertices)
+        print dot_content
 
         with tempfile.NamedTemporaryFile(delete=False) as tf_input, tempfile.NamedTemporaryFile() as tf_output:
             tf_input.write(dot_content)
