@@ -1,10 +1,23 @@
-schema = '''
+schema = [
+'''
 CREATE TABLE models (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    model_json TEXT
-)
+    name TEXT,
+    model_json TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+''',
 '''
+CREATE TRIGGER models_updated_at_trigger AFTER UPDATE ON models FOR EACH ROW
+  BEGIN
+    UPDATE models SET updated_at = CURRENT_TIMESTAMP WHERE id = old.id;
+  END;
+
+'''
+]
 
 if __name__ == '__main__':
     import ui
-    ui.Handler.db.query(schema)
+    for sql in schema:
+        ui.Handler.db.query(sql)
