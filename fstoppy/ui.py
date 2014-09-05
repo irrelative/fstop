@@ -9,6 +9,9 @@ import base
 class Handler(object):
     template_loader = jinja2.FileSystemLoader(searchpath="templates/")
     template_env = jinja2.Environment(loader=template_loader, autoescape=True)
+    template_env.filters.update({
+        'floatfmt': lambda x: ('%.2f' % x) if isinstance(x, float) else x
+    })
     db = web.database(dbn='sqlite', db='fstoppy.db')
 
     def render(self, tname, context):
@@ -52,7 +55,7 @@ class RunModel(Handler):
 class NewModel(Handler):
 
     form = web.form.Form(
-        web.form.Textarea('name', web.form.notnull,
+        web.form.Textbox('name', web.form.notnull,
                           description="Model Name"),
         web.form.Textarea('model_json', web.form.notnull,
                           description="Model JSON"),

@@ -12,7 +12,7 @@
         {% for row in rows %}
             <tr>
                 {% for col in row %}
-                    <td>{{col}}</td>
+                    <td>{{col|floatfmt}}</td>
                 {% endfor %}
             </tr>
         {% endfor %}
@@ -24,13 +24,18 @@
         var data = JSON.parse(document.getElementById('data').textContent);
         var ctx = document.getElementById("chart").getContext("2d");
 
+        var colors = ['#369', '#080', '#a00', '#888'];
+
         var datasets = _.compact(_.map(data.headers, function(h, i) {
             if (i == 0) {
                 return;
             }
+            var color = colors[(i - 1) % colors.length];
             return {
                 label: h,
-                data: _.pluck(data.rows, i)
+                data: _.pluck(data.rows, i),
+                strokeColor: color,
+                pointColor: color,
             }
         }));
         var chartData = {

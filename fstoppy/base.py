@@ -111,18 +111,18 @@ class Model(object):
     def _insert(self, dict_):
         keys = dict_.keys()
         values = [dict_[k] for k in keys]
-        sql = 'INSERT INTO results (%s) VALUES (%s)' % \
-            (','.join(keys), ','.join('?' for k in keys))
+        sql = 'INSERT INTO results ("%s") VALUES (%s)' % \
+            ('","'.join(keys), ','.join('?' for k in keys))
         self.conn.execute(sql, values)
 
     def gen_svg(self):
-        font = 'OpenSans'
+        font = 'Helvetica'
         nodes = []
         vertices = []
         for s in self.stocks:
-            nodes.append('"%s" [fontname="%s"]' % (s.name, font))
+            nodes.append('"%s" [penwidth=0.5 color="#AAAAAA" fontname="%s"]' % (s.name, font))
         for f in self.flows:
-            nodes.append('"%s" [style=invis fontname="%s"]' % (f.name, font))
+            nodes.append('"%s" [style=invisible fontname="%s"]' % (f.name, font))
             if f.to and f.from_:
                 vertices.append('"%s"->"%s" [label="%s" fontname="%s"]' % (f.from_.name, f.to.name, f.name, font))
             elif f.to:
