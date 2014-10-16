@@ -2,6 +2,9 @@
 {% block header %}{% endblock %}
 
 {% block body %}
+    {% if bound_error %}
+        <div class="alert alert-warning" role="alert">Model run error: {{bound_error}}</div>
+    {% endif %}
     <canvas id="chart" width="800" height="400"></canvas>
     <table class="table">
         <tr>

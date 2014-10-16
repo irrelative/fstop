@@ -70,6 +70,7 @@ class Model(object):
     def run(self, show=None):
         self._initdb()
         step = 1
+        bound_error = None
         while step <= self.steps:
             values = {'step': step}
             for flow in self.flows:
@@ -80,6 +81,13 @@ class Model(object):
                     flow.to.value += (values[flow.name] or 0)
                 if flow.from_:
                     flow.from_.value -= (values[flow.name] or 0)
+                for stock in (flow.to, flow.from_):
+                    if stock:
+                        if stock.value > stock.maximum or stock.value < stock.minimum:
+                            bound_error = '%s out of range at step %s, %s' % \
+                                          (stock.name, step, stock.value)
+            if bound_error:
+                break
             for stock in self.stocks:
                 values[stock.name] = stock.value
             self._insert(values)
@@ -89,7 +97,8 @@ class Model(object):
         cur = self.conn.execute('select %s from results' % ','.join(show))
         return {
             'headers': [c[0] for c in cur.description],
-            'rows': cur.fetchall()        
+            'rows': cur.fetchall(),
+            'bound_error': bound_error
         }
 
     def flow_value(self, flow, step):
@@ -151,7 +160,8 @@ class Stock(object):
 
     @classmethod
     def from_json(cls, json_dict):
-        return Stock(json_dict.get('name', 'stock'), json_dict.get('initial', 0))
+        return Stock(json_dict.get('name', 'stock'), json_dict.get('initial', 0),
+                     json_dict.get('minimum', 0), json_dict.get('maximum', float('inf')))
 
     def __init__(self, name, initial, minimum=0, maximum=float('inf')):
         self.name = name
@@ -161,7 +171,8 @@ class Stock(object):
         self.maximum = maximum
 
     def to_json(self):
-        return {'name': self.name, 'initial': self.initial}
+        return {'name': self.name, 'initial': self.initial,
+                'minimum': self.minimum, 'maximum': self.maximum}
 
 
 class Flow(object):

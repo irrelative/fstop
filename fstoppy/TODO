@@ -1,5 +1,3 @@
-* Set bounds of stocks (greater than 0, etc)
-
 * Let stock initial values reference other stocks
 * Isolate variables that can be used within a stock/flow
 * Rename 'from_' to 'from'
