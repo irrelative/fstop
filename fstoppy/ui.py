@@ -44,10 +44,10 @@ class ViewModel(Handler):
 class RunModel(Handler):
 
     def POST(self):
-        inp = web.input(model=None)
+        inp = web.input(model=None, show=[])
         json_inp = json.loads(inp.model)
         model = base.Model.from_json(json_inp)
-        results = model.run()
+        results = model.run(inp.show)
         results['json'] = json.dumps(results)
         return self.render('result_table.html', results)
 
@@ -90,8 +90,8 @@ class Flow(Handler):
     def POST(self, model_id):
         model = base.Model.get(self.db, model_id)
         inp = web.input(name=None, formula=None, to=None, from_=None)
-        to = model.get_stock(inp.to)
-        from_ = model.get_stock(inp.from_)
+        to = model.get_node(inp.to)
+        from_ = model.get_node(inp.from_)
         flow = base.Flow(inp.name, inp.formula, to, from_)
 
         model.flows.append(flow)

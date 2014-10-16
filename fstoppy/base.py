@@ -1,5 +1,5 @@
 import json
-
+import math
 import sqlite3
 import subprocess
 import tempfile
@@ -37,10 +37,13 @@ class Model(object):
         self.stocks = []
         self.conn = sqlite3.connect(":memory:")
 
-    def get_stock(self, stock_name):
+    def get_node(self, node_name):
         for s in self.stocks:
-            if s.name == stock_name:
+            if s.name == node_name:
                 return s
+        for f in self.flows:
+            if f.name == node_name:
+                return f
         return None
 
     def to_json(self):
@@ -64,7 +67,7 @@ class Model(object):
     def delete(self, db, id_):
         db.delete('models', where='id=$id_', vars={'id_': id_})
 
-    def run(self):
+    def run(self, show=None):
         self._initdb()
         step = 1
         while step <= self.steps:
@@ -74,15 +77,16 @@ class Model(object):
                 values[flow.name] = self.flow_value(flow, step)
             for flow in self.flows:
                 if flow.to:
-                    flow.to.value += values[flow.name]
+                    flow.to.value += (values[flow.name] or 0)
                 if flow.from_:
-                    flow.from_.value -= values[flow.name]
+                    flow.from_.value -= (values[flow.name] or 0)
             for stock in self.stocks:
                 values[stock.name] = stock.value
             self._insert(values)
             step += 1
 
-        cur = self.conn.execute('select * from results')
+        show.insert(0, 'step')
+        cur = self.conn.execute('select %s from results' % ','.join(show))
         return {
             'headers': [c[0] for c in cur.description],
             'rows': cur.fetchall()        
@@ -149,10 +153,12 @@ class Stock(object):
     def from_json(cls, json_dict):
         return Stock(json_dict.get('name', 'stock'), json_dict.get('initial', 0))
 
-    def __init__(self, name, initial):
+    def __init__(self, name, initial, minimum=0, maximum=float('inf')):
         self.name = name
         self.initial = initial
         self.value = initial
+        self.minimum = minimum
+        self.maximum = maximum
 
     def to_json(self):
         return {'name': self.name, 'initial': self.initial}

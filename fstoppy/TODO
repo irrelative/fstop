@@ -1,3 +1,8 @@
+* Set bounds of stocks (greater than 0, etc)
+
+* Let stock initial values reference other stocks
+* Isolate variables that can be used within a stock/flow
+* Rename 'from_' to 'from'
 * Make a usable UI for CRUDing stocks/flows
 * Fix spaces in header names
 * Model allows start/end datetimes with timedelta, rather than steps
