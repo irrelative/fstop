@@ -5,6 +5,26 @@
         function resizeIframe(iframe) {
             iframe.height = iframe.contentWindow.document.body.scrollHeight + "px";
         }
+        $(function() {
+            var localKey = 'fstoppy.runvalues.{{model.name}}',
+                $runForm = $('#run-form');
+            $runForm.change(function(ev) {
+                var shown = $(this).serializeArray();
+                var values = _.map(shown, function(i) {
+                    if (i.name == 'show') {
+                        return i.value;
+                    }
+                });
+                window.localStorage[localKey] = JSON.stringify(values);
+            });
+            var values = JSON.parse(window.localStorage[localKey] || []);
+            _.each($runForm.find('input[type=checkbox]'), function(inp) {
+                //console.log('checking ', inp);
+                if (values.indexOf($(inp).attr('value')) >= 0) {
+                    $(inp).prop('checked', true);
+                }
+            });
+        });
     </script>
     <div class="row">
         <div class="col-md-12">
@@ -34,16 +54,16 @@
     </div>
     <div class="row">
         <h2>Run Model</h2>
-        <form action="/run" method="post" target="results">
+        <form action="/run" method="post" target="results" id="run-form">
             <input type="hidden" name="model" value="{{model_json}}"/>
             {% for stock in model.stocks %}
                 <label class="checkbox-inline">
-                    <input type="checkbox" name="show" value="{{stock.name}}" checked> {{stock.name}}
+                    <input type="checkbox" name="show" value="{{stock.name}}"> {{stock.name}}
                 </label>
             {% endfor %}
             {% for flow in model.flows %}
                 <label class="checkbox-inline">
-                    <input type="checkbox" name="show" value="{{flow.name}}" checked> {{flow.name}}
+                    <input type="checkbox" name="show" value="{{flow.name}}"> {{flow.name}}
                 </label>
             {% endfor %}
             <button class="btn btn-default" type="submit">Run</button>

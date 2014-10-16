@@ -3,7 +3,9 @@
 
 {% block body %}
     {% if bound_error %}
-        <div class="alert alert-warning" role="alert">Model run error: {{bound_error}}</div>
+        <div class="alert alert-warning" role="alert">
+             <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span></button>
+            Model didn't finish: {{bound_error}}</div>
     {% endif %}
     <canvas id="chart" width="800" height="400"></canvas>
     <table class="table">
